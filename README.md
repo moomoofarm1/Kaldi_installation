@@ -340,6 +340,25 @@ echo "Kaldi installation script completed."
 # =========================================
 
 ```
+
+## 4. Error: OpenFst directory .../kaldi/tools/openfst does not exist.
+Error message.
+```
+Error: OpenFst directory .../kaldi/tools/openfst does not exist.
+```
+in running
+```
+OPENFST_DIR="$(pwd)/openfst"
+
+# Verify that OpenFst was built successfully
+if [ ! -d "$OPENFST_DIR" ]; then
+  echo "Error: OpenFst directory $OPENFST_DIR does not exist."
+  exit 1
+fi
+```
+Solution.
+
+
 # TODO: Line 86 of the above script fails. OpenFt building is not correct.
 3. Verify the openFt installation.
 If Installed via Homebrew, check for the presence of fst.h: ```ls /usr/local/include/fst/fst.h``` or for Apple Silicon Macs ```ls /opt/homebrew/include/fst/fst.h```
