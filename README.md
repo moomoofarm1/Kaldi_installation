@@ -321,6 +321,7 @@ echo "Kaldi installation script completed."
 # =========================================
 
 ```
+# TODO: Line 86 of the above script fails. OpenFt building is not correct.
 3. Verify the openFt installation.
 If Installed via Homebrew, check for the presence of fst.h: ```ls /usr/local/include/fst/fst.h``` or for Apple Silicon Macs ```ls /opt/homebrew/include/fst/fst.h```
 If Built via Kaldi's Tools: ```ls tools/openfst/include/fst/fst.h```
