@@ -63,6 +63,5 @@ Reason: The issue likely lies in the compiler's inability to locate the C++ stan
 Solution:
 1. Check: <font color="red">clang++ --version</font>
 2. Check: <font color="red">g++ --version</font>
-3. First check: ```clang++ -v -E -x c++ /dev/null```
-Then run: 
-```find /Library/Developer/CommandLineTools -name cstring```
+3. First check: ```clang++ -v -E -x c++ /dev/null``` then run ```find /Library/Developer/CommandLineTools -name cstring``` to see any differences of paths containing "V1".
+4. 1
