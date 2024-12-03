@@ -87,7 +87,7 @@ clang++ -isysroot "$SDK_PATH" -I "$CXX_INCLUDE_PATH" test.cpp -o test
 2. Check: ```clang++ --version```
 3. Check: ```g++ --version```
 4. First check: ```clang++ -v -E -x c++ /dev/null``` then run ```find /Library/Developer/CommandLineTools -name cstring``` to see any differences of paths containing "V1".
-5. If there is a mismatch in the 4th step. One needs to change the SDKROOT. But one needs not to do so due to any unexpected outcomes. Then run "ls /Library/Developer/CommandLineTools/SDKs/" to choose the best SDK version. I think it should match the paths found using the command "find".
+5. If there is a mismatch in the 4th step. One needs to change the SDKROOT. But one needs not to do so due to any unexpected outcomes. Then run ```ls /Library/Developer/CommandLineTools/SDKs/``` to choose the best SDK version. I think it should match the paths found using the command "find".
 6. Run the following line by line.
 ```
 SDK_PATH="/Library/Developer/CommandLineTools/SDKs/MacOSX15.1.sdk" // Use the SDK version 15.1 for example
