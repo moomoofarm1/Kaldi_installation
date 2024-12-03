@@ -2,7 +2,7 @@
 title: "Installation of Kaldi via a Shell script"
 output: html_document
 author: "Alexander Gu"
-date: "2024-11-03"
+date: "2024-12-03"
 ---
 
 # Kaldi Installation Script for macOS (M1)
