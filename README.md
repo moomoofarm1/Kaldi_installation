@@ -61,7 +61,27 @@ The error message.
 ```
 Reason: The issue likely lies in the compiler's inability to locate the C++ standard library headers. This is a common issue on macOS, especially with the transition to Apple Silicon (arm64).</br>
 Solution:
-1. Check: <font color="red">clang++ --version</font>
-2. Check: <font color="red">g++ --version</font>
-3. First check: ```clang++ -v -E -x c++ /dev/null``` then run ```find /Library/Developer/CommandLineTools -name cstring``` to see any differences of paths containing "V1".
-4. 1
+1. Prepare a simple program to check the C++ compiler settings for further use.
+```
+// test.cpp
+#include <cstring>
+#include <iostream>
+
+int main() {
+  const char* str = "Hello, World!";
+  std::cout << str << std::endl;
+  return 0;
+}
+```
+and 
+```
+// test.sh
+clang++ test.cpp -o test
+./test
+```
+2. Check: <font color="red">clang++ --version</font>
+3. Check: <font color="red">g++ --version</font>
+4. First check: ```clang++ -v -E -x c++ /dev/null``` then run ```find /Library/Developer/CommandLineTools -name cstring``` to see any differences of paths containing "V1".
+5. 1
+
+   
