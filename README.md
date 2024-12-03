@@ -53,11 +53,14 @@ echo 'export PATH=$KALDI_ROOT/src/bin:$PATH'
 
 # Trouble shooting
 ## 1. cstring not found
-
+The error message.
 ```
  fatal error: 'cstring' file not found
     1 | #include <cstring>
       |          ^~~~~~~~~
 ```
+Reason: The issue likely lies in the compiler's inability to locate the C++ standard library headers. This is a common issue on macOS, especially with the transition to Apple Silicon (arm64).
+Solution:
 1. Check: <font color="red">clang++ --version</font>
 2. Check: <font color="red">g++ --version</font>
+3. Run: find /Library/Developer/CommandLineTools -name cstring
