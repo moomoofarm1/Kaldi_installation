@@ -1,5 +1,5 @@
 ---
-title: "LocalSetupOfR_if_ANACONDA_incompatible.md"
+title: "Installation of Kaldi via a Shell script"
 output: html_document
 author: "Alexander Gu"
 date: "2024-11-03"
