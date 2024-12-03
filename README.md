@@ -58,3 +58,6 @@ echo 'export PATH=$KALDI_ROOT/src/bin:$PATH'
  fatal error: 'cstring' file not found
     1 | #include <cstring>
       |          ^~~~~~~~~
+```
+1. Check: <span style="color: red;">clang++ --version</span>
+2. Check: <span style="color: red;">g++ --version</span>
