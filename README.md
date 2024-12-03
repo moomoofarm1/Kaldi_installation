@@ -134,4 +134,17 @@ echo 'export PATH=$KALDI_ROOT/tools/openfst/bin:$PATH'
 echo 'export PATH=$KALDI_ROOT/src/bin:$PATH'
 
 ```
-   
+## 2. OpenFst not installed
+The error message.
+```
+Configuring KALDI to use OPENBLAS. // This should be correct.
+Checking compiler c++ ...
+Checking OpenFst library in  ...
+***configure failed: Could not find file /include/fst/fst.h:
+  you may not have installed OpenFst. See ../tools/INSTALL ***
+Makefile:29: kaldi.mk: No such file or directory
+ERROR: kaldi.mk does not exist; run ./configure first.
+make: *** [kaldi.mk] Error 1
+Kaldi installation complete. // This should be correct.
+```
+
