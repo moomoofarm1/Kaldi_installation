@@ -59,5 +59,5 @@ echo 'export PATH=$KALDI_ROOT/src/bin:$PATH'
     1 | #include <cstring>
       |          ^~~~~~~~~
 ```
-1. Check: <span style="color: red;">clang++ --version</span>
-2. Check: <span style="color: red;">g++ --version</span>
+1. Check: <span style="color: red">clang++ --version</span>
+2. Check: <span style="color: red">g++ --version</span>
