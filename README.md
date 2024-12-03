@@ -14,7 +14,7 @@ This guide provides a shell script to install Kaldi on macOS (M1). Follow the st
 Ensure you have the following tools installed on your Mac:
 
 - [Homebrew](https://brew.sh/)
-- Command-line tools for Xcode (`xcode-select --install`)
+- Command-line tools for Xcode (`xcode-select --install`). But I do not think this is necessary since other softwares require this already.
 
 ---
 
