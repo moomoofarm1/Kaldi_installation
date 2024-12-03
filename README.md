@@ -134,7 +134,21 @@ echo 'export PATH=$KALDI_ROOT/tools/openfst/bin:$PATH'
 echo 'export PATH=$KALDI_ROOT/src/bin:$PATH'
 
 ```
-## 2. OpenFst not installed
+## 2. cstring not found conti.
+Error message.
+```
+n file included from In file included from In file included from alignedspeech_test.cppasctools.cppalignedsegment_test.cpp:::182218:
+:
+:
+In file included from In file included from In file included from ./alignedspeech_test.h./asctools.h./alignedsegment_test.h:::212121:
+:
+:
+../core/stdinc.hIn file included from :21:10:../core/stdinc.h alignment_test.cppfatal error: :18:
+In file included from :./alignment_test.h21::2110: fatal error: 'cstring' file not found
+```
+in the running of code ```make -j$(sysctl -n hw.logicalcpu)```
+
+## 3. OpenFst not installed
 The error message.
 ```
 Configuring KALDI to use OPENBLAS. // This should be correct.
