@@ -327,3 +327,6 @@ If Installed via Homebrew, check for the presence of fst.h: ```ls /usr/local/inc
 If Built via Kaldi's Tools: ```ls tools/openfst/include/fst/fst.h```
 4. 
 
+
+# MISC
+[Features](https://github.com/moomoofarm1/shennong) expected to extract.
