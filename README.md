@@ -49,4 +49,12 @@ echo "Add the following to your shell profile:"
 echo 'export KALDI_ROOT=$(pwd)'
 echo 'export PATH=$KALDI_ROOT/tools/openfst/bin:$PATH'
 echo 'export PATH=$KALDI_ROOT/src/bin:$PATH'
+```
 
+# Trouble shooting
+## 1. cstring not found
+
+```
+ fatal error: 'cstring' file not found
+    1 | #include <cstring>
+      |          ^~~~~~~~~
