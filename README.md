@@ -96,5 +96,42 @@ clang++ -isysroot "$SDK_PATH" test.cpp -o test
 CXX_INCLUDE_PATH="$SDK_PATH/usr/include/c++/v1"
 clang++ -isysroot "$SDK_PATH" -I "$CXX_INCLUDE_PATH" test.cpp -o test
 ```
+7. Finally add the lines to the original Kaldi script.
 
+```
+#!/bin/bash
+# kaldi_install.sh
+
+# Install dependencies
+#brew install git wget automake autoconf sox libtool subversion python3 gfortran
+
+# Clone the Kaldi repository
+git clone https://github.com/kaldi-asr/kaldi.git
+
+cd kaldi
+
+# Define the SDK path
+SDK_PATH="/Library/Developer/CommandLineTools/SDKs/MacOSX15.1.sdk"
+
+# Export compiler flags to guide clang++ to the correct SDK paths
+export CXXFLAGS="-isysroot $SDK_PATH -I$SDK_PATH/usr/include/c++/v1"
+export LDFLAGS="-isysroot $SDK_PATH"
+
+# Set up tools
+cd tools
+extras/check_dependencies.sh
+make -j$(sysctl -n hw.logicalcpu)
+
+# Set up source
+cd ../src
+./configure --shared
+make -j$(sysctl -n hw.logicalcpu)
+
+echo "Kaldi installation complete."
+echo "Add the following to your shell profile:"
+echo 'export KALDI_ROOT=$(pwd)'
+echo 'export PATH=$KALDI_ROOT/tools/openfst/bin:$PATH'
+echo 'export PATH=$KALDI_ROOT/src/bin:$PATH'
+
+```
    
