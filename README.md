@@ -146,7 +146,12 @@ In file included from In file included from In file included from ./alignedspeec
 ../core/stdinc.hIn file included from :21:10:../core/stdinc.h alignment_test.cppfatal error: :18:
 In file included from :./alignment_test.h21::2110: fatal error: 'cstring' file not found
 ```
-in the running of code ```make -j$(sysctl -n hw.logicalcpu)```
+in the running of code ```make -j$(sysctl -n hw.logicalcpu)```.
+
+Solution
+1. Check ```echo $SDK_PATH```
+2. Also check ```ls "$SDK_PATH/usr/include/c++/v1/cstring"```
+3. An updated .sh file is shared in this repo.
 
 ## 3. OpenFst not installed
 The error message.
