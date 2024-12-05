@@ -80,6 +80,8 @@ clang++ test.cpp -o test
 ./test
 
 // Alternative
+SDK_PATH="/Library/Developer/CommandLineTools/SDKs/MacOSX15.1.sdk"
+CXX_INCLUDE_PATH="$SDK_PATH/usr/include/c++/v1"
 CXX_INCLUDE_PATH="$SDK_PATH/usr/include/c++/v1"
 clang++ -isysroot "$SDK_PATH" -I "$CXX_INCLUDE_PATH" test.cpp -o test
 ./test
