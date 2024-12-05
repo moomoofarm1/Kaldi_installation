@@ -112,9 +112,10 @@ cd kaldi
 
 # Define the SDK path
 SDK_PATH="/Library/Developer/CommandLineTools/SDKs/MacOSX15.1.sdk"
+CXX_INCLUDE_PATH="$SDK_PATH/usr/include/c++/v1"
 
 # Export compiler flags to guide clang++ to the correct SDK paths
-export CXXFLAGS="-isysroot $SDK_PATH -I$SDK_PATH/usr/include/c++/v1"
+export CXXFLAGS="-isysroot $SDK_PATH -I $CXX_INCLUDE_PATH"
 export LDFLAGS="-isysroot $SDK_PATH"
 
 # Set up tools
