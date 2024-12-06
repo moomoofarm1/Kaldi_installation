@@ -360,6 +360,17 @@ fi
 ```
 Solution.
 
+## 5. zlib not found
+Zlib is the dependency of Kaldi. While running ```extras/check_dependencies.sh```, it will print that ```zlib (a similar name) is not found``` but MaxOS has shipped the package. If one uses ```brew link zlib``` it will print that zlib is keg-only which means it is installed in certain [folder](https://stackoverflow.com/questions/17015285/understand-homebrew-and-keg-only-dependencies) but one needs indicate the position of the folder.
+Solution, run the code below just before the running of ```extras/check_dependencies.sh```.
+```
+# Check for necessary dependencies
+# Designate the postion of dependency zlib
+export CPLUS_INCLUDE_PATH=$(brew --prefix zlib)/include
+export LIBRARY_PATH=$(brew --prefix zlib)/lib
+export PKG_CONFIG_PATH=$(brew --prefix zlib)/lib/pkgconfig
+```
+
 
 # TODO: Line 86 of the above script fails. OpenFt building is not correct.
 3. Verify the openFt installation.
