@@ -1,5 +1,5 @@
 #!/bin/bash
-# kaldi_install.sh (should not have the folder kaldi in the same directory)
+# kaldi_install.sh (should not have and do not need the folder kaldi in the same directory)
 
 # Copyright 2024-2025 Zhuojun Gu
 #
