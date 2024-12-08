@@ -1,5 +1,5 @@
 #!/bin/bash
-# kaldi_install.sh (not in the folder of kaldi)
+# kaldi_install.sh (should not have the folder kaldi in the same directory)
 
 # Copyright 2024-2025 Zhuojun Gu
 #
@@ -81,6 +81,7 @@ fi
 # ---------------------------
 echo "Cloning the Kaldi repository..."
 
+rm -rf kaldi
 if [[ ! -d "kaldi" ]]; then
   echo "Cloning the Kaldi repository..."
   git clone https://github.com/kaldi-asr/kaldi.git
@@ -88,8 +89,8 @@ if [[ ! -d "kaldi" ]]; then
 else
   echo "Kaldi repository already present. Skipping clone."
 fi
-
 cd kaldi
+
 
 # ---------------------------
 # 3. Define the SDK Path
@@ -127,7 +128,10 @@ echo "Compiler flags set."
 # ---------------------------
 # 5. Set Up and Build Kaldi Tools (Including OpenFst)
 # ---------------------------
+
+# TODO: 5,6 has some errors!!!!
 echo "Building Kaldi tools..."
+
 cd tools
 
 # Set environment variables for zlib (required by OpenFst)
@@ -135,13 +139,14 @@ cd tools
 #OPENFST_DIR="$(pwd)/openfst-1.8.3"
 
 echo "Setting opesfst"
+
 cd openfst-1.8.3
-make distclean # Clean any previous configurations.
+make distclean || true # Clean any previous configurations.
 ./configure --enable-static --enable-shared CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS" #CXXFLAGS="-O2 -std=c++17" #LDFLAGS="-arch arm64"
 make -j"$(sysctl -n hw.logicalcpu)" CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS"
 
 echo "Checking dependencies for Kaldi tools..."
-cd ..
+
 extras/check_dependencies.sh CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS"
 
 echo "Cleaning previous builds..."
@@ -151,7 +156,6 @@ echo "Building Kaldi tools..."
 make -j"$(sysctl -n hw.logicalcpu)" CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS";
 
 echo "Kaldi tools built successfully."
-
 
 # ---------------------------
 # 6. Update Compiler Flags to Include OpenFst Paths
@@ -166,7 +170,7 @@ OPENFST_TARBALL="${OPENFST_VERSION}.tar.gz"
 OPENFST_DOWNLOAD_URL="http://www.openfst.org/twiki/pub/FST/FstDownload/${OPENFST_TARBALL}"
 
 # Define directories
-TOOLS_DIR="$(pwd)/tools"
+TOOLS_DIR="$(pwd)/tools"  
 OPENFST_DIR="${TOOLS_DIR}/openfst"
 
 # Create tools and OpenFst directories
@@ -243,13 +247,16 @@ echo "OpenFst built and installed successfully in ${OPENFST_DIR}."
 # ---------------------------
 echo "Setting up Kaldi source..."
 
-cd ../../src
+pwd
+cd ../../src # from FST to SRC
+pwd
 
 # Clean any previous builds to avoid conflicts
-echo "Cleaning previous builds (if any)..."
+echo "Cleaning previous builds if any."
 make clean || true
 make -j clean depend || true
 make distclean || true
+
 
 # Run the configuration script with shared libraries enabled
 echo "Configuring Kaldi with shared libraries..."
@@ -259,7 +266,7 @@ if ! ./configure --shared; then
 fi
 
 # Clean any previous builds to avoid conflicts
-echo "Cleaning previous builds (if any)..."
+echo "Cleaning previous builds if any."
 make clean || true
 make -j clean depend || true
 make distclean || true
@@ -268,7 +275,7 @@ echo "Configuration completed successfully."
 
 # Install dependencies
 echo "Installing dependencies..."
-make depend -j"$(sysctl -n hw.logicalcpu)"
+make depend -j"$(sysctl -n hw.logicalcpu)" CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS"
 
 # Clean any previous builds to avoid conflicts
 echo "Cleaning previous builds (if any)..."
@@ -286,7 +293,7 @@ cd $KALDI_ROOT/src
 # Build Kaldi using all available logical CPUs
 NUM_CPUS=$(sysctl -n hw.logicalcpu)
 echo "Building Kaldi using $NUM_CPUS parallel jobs (this may take a while)..."
-if ! make -j"$NUM_CPUS" CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS"; then
+if ! make -j"$NUM_CPUS" V=1; then
     echo "Error: Kaldi build failed. Check the build output above for details."
     exit 1
 fi
@@ -331,8 +338,6 @@ else
 fi
 
 echo "Kaldi installation script completed."
-
-exit
 
 # ---------------------------
 # 10. Reset SDK_Path
