@@ -1,5 +1,6 @@
 #!/bin/bash
 # kaldi_install.sh (should not have the folder kaldi in the same directory)
+# General pipeline: download->dependency configuration/compiling->dependency checks->download main->install dependency->main configuration/compiling->verify main
 
 # Copyright 2024-2025 Zhuojun Gu
 #
@@ -129,7 +130,6 @@ echo "Compiler flags set."
 # 5. Set Up and Build Kaldi Tools (Including OpenFst)
 # ---------------------------
 
-# TODO: 5,6 has some errors!!!!
 echo "Building Kaldi tools..."
 
 cd tools
