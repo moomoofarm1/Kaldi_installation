@@ -1,5 +1,5 @@
 #!/bin/bash
-# kaldi_install.sh
+# kaldi_install.sh (not in the folder of kaldi)
 
 # Copyright 2024-2025 Zhuojun Gu
 #
@@ -34,7 +34,7 @@ exec > >(tee logfile.log) 2>&1
 echo "This will be logged into logfile.log."
 
 # Exit immediately if a command exits with a non-zero status
-set -euo pipefail
+#set -euo pipefail
 
 # --------------------------------
 # 0. Preliminary Checks
@@ -159,66 +159,145 @@ echo "Kaldi tools built successfully."
 # The OpenFst build usually happens automatically with the tools build, but here we explicitly configure and check it.
 echo "Configuring and building OpenFst..."
 cd ..
-OPENFST_VERSION="openfst-1.8.3" #/src/lib/.libs/"
-OPENFST_DIR="$(pwd)/tools/$OPENFST_VERSION"
 
-if [[ ! -d "$OPENFST_DIR" ]]; then
-  echo "OpenFst directory $OPENFST_DIR not found."
-  echo "Please check that Kaldi tools downloaded and unpacked OpenFst correctly."
-  exit 1
+# Define OpenFst version and download URL
+OPENFST_VERSION="openfst-1.8.3"
+OPENFST_TARBALL="${OPENFST_VERSION}.tar.gz"
+OPENFST_DOWNLOAD_URL="http://www.openfst.org/twiki/pub/FST/FstDownload/${OPENFST_TARBALL}"
+
+# Define directories
+TOOLS_DIR="$(pwd)/tools"
+OPENFST_DIR="${TOOLS_DIR}/openfst"
+
+# Create tools and OpenFst directories
+mkdir -p "${TOOLS_DIR}"
+mkdir -p "${OPENFST_DIR}"
+
+# Change to tools directory
+cd "${TOOLS_DIR}"
+
+# Download OpenFst if not already downloaded
+if [[ ! -f "${OPENFST_TARBALL}" ]]; then
+    echo "Downloading OpenFst ${OPENFST_VERSION}..."
+    wget -O "${OPENFST_TARBALL}" "${OPENFST_DOWNLOAD_URL}"
+else
+    echo "OpenFst tarball already exists. Skipping download."
 fi
 
-cd "$OPENFST_DIR"
+# Extract OpenFst
+if [[ ! -f "${OPENFST_DIR}/configure" ]]; then
+    echo "Extracting OpenFst..."
+    tar -xzf "${OPENFST_TARBALL}" -C "${OPENFST_DIR}" --strip-components=1
+else
+    echo "OpenFst already extracted. Skipping extraction."
+fi
 
-# Run the configure script from the top-level OpenFst directory
+# Change to OpenFst directory
+cd "${OPENFST_DIR}"
+
+# Ensure the configure script is executable
 if [[ ! -x "./configure" ]]; then
-    echo "./configure script not found or not executable in $OPENFST_DIR"
-    echo "Make sure OpenFst is correctly unpacked."
+    echo "./configure script not found or not executable in ${OPENFST_DIR}"
     exit 1
 fi
 
 # Configure with prefix to the same directory and enable shared libraries
-./configure --prefix="$(pwd)" --enable-shared
+./configure --prefix="${OPENFST_DIR}" --enable-shared
 
-# Build with the number of logical CPUs available (macOS specific command below; on Linux you might use nproc)
-make -j"$(sysctl -n hw.logicalcpu)"
+# Determine the number of CPU cores
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    NUM_CORES=$(sysctl -n hw.logicalcpu)
+else
+    NUM_CORES=$(nproc)
+fi
+
+# Compile OpenFst
+echo "Compiling OpenFst with ${NUM_CORES} cores..."
+make -j"${NUM_CORES}" CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS"
+
+# Install OpenFst
 make install
 
-# Check for fst.h
-if [[ ! -f "$(pwd)/include/fst/fst.h" ]]; then
-  echo "fst.h not found. OpenFst may not have built correctly."
-  exit 1
+# Verify fst.h
+if [[ ! -f "${OPENFST_DIR}/include/fst/fst.h" ]]; then
+    echo "Error: fst.h not found. OpenFst may not have built correctly."
+    exit 1
 fi
 
-# Check for the library file (.so or .dylib)
-if [[ ! -f "$(pwd)/lib/libfst.dylib" && ! -f "$(pwd)/lib/libfst.so" ]]; then
-  echo "OpenFst library not found. Build may have failed."
-  exit 1
+# Verify the library file (.so for Linux, .dylib for macOS)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    LIB_FILE="${OPENFST_DIR}/lib/libfst.dylib"
+else
+    LIB_FILE="${OPENFST_DIR}/lib/libfst.so"
 fi
 
-echo "OpenFst built and installed successfully."
+if [[ ! -f "${LIB_FILE}" ]]; then
+    echo "Error: OpenFst library not found at ${LIB_FILE}. Build may have failed."
+    exit 1
+fi
+
+echo "OpenFst built and installed successfully in ${OPENFST_DIR}."
 
 # ---------------------------
 # 7. Set Up and Build Kaldi Source
 # ---------------------------
 echo "Setting up Kaldi source..."
 
-cd ../src
+cd ../../src
 
 # Clean any previous builds to avoid conflicts
 echo "Cleaning previous builds (if any)..."
 make clean || true
+make -j clean depend || true
+make distclean || true
 
 # Run the configuration script with shared libraries enabled
-echo "Configuring Kaldi..."
-./configure --shared
+echo "Configuring Kaldi with shared libraries..."
+if ! ./configure --shared; then
+    echo "Error: Configuration failed. Check the output above for details."
+    exit 1
+fi
+
+# Clean any previous builds to avoid conflicts
+echo "Cleaning previous builds (if any)..."
+make clean || true
+make -j clean depend || true
+make distclean || true
+
+echo "Configuration completed successfully."
+
+# Install dependencies
+echo "Installing dependencies..."
+make depend -j"$(sysctl -n hw.logicalcpu)"
+
+# Clean any previous builds to avoid conflicts
+echo "Cleaning previous builds (if any)..."
+make clean || true
+make -j clean depend || true
+make distclean || true
+
+# Export Kaldi root path and add binaries to PATH
+cd ../..
+export KALDI_ROOT=$PWD/kaldi
+[ -f $KALDI_ROOT/tools/env.sh ] && . $KALDI_ROOT/tools/env.sh
+export PATH=$KALDI_ROOT/utils/:$KALDI_ROOT/src/bin/:$KALDI_ROOT/src/fstbin/:$KALDI_ROOT/src/gmmbin/:$KALDI_ROOT/src/featbin/:$KALDI_ROOT/src/lm/:$KALDI_ROOT/src/sgmmbin/:$KALDI_ROOT/src/sgmm2bin/:$KALDI_ROOT/src/fgmmbin/:$KALDI_ROOT/src/latbin/:$KALDI_ROOT/src/nnet2bin/:$KALDI_ROOT/src/nnet3bin/:$KALDI_ROOT/src/online2bin/:$KALDI_ROOT/src/rnnlmbin/:$KALDI_ROOT/src/online2bin/:$PATH
+cd $KALDI_ROOT/src
 
 # Build Kaldi using all available logical CPUs
-echo "Building Kaldi (this may take a while)..."
-make -j$(sysctl -n hw.logicalcpu)
+NUM_CPUS=$(sysctl -n hw.logicalcpu)
+echo "Building Kaldi using $NUM_CPUS parallel jobs (this may take a while)..."
+if ! make -j"$NUM_CPUS" CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS"; then
+    echo "Error: Kaldi build failed. Check the build output above for details."
+    exit 1
+fi
 
-echo "Kaldi built successfully."
-
+# Verify build success
+if [ $? -eq 0 ]; then
+    echo "Kaldi built successfully."
+else
+    echo "Error: Kaldi build failed. Check the build output above for details."
+    exit 1
+fi
 
 # ---------------------------
 # 8. Final Environment Setup (Optional)
@@ -248,10 +327,12 @@ if [ -f "kaldi.mk" ]; then
   echo "Kaldi installation completed successfully."
 else
   echo "Error: kaldi.mk not found. Installation may have failed."
-  #exit 1
+  exit 1
 fi
 
 echo "Kaldi installation script completed."
+
+exit
 
 # ---------------------------
 # 10. Reset SDK_Path
