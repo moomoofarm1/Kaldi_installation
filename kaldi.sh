@@ -1,5 +1,5 @@
 #!/bin/bash
-# kaldi_install.sh (should not have and do not need the folder kaldi in the same directory)
+# kaldi_install.sh (should not have the folder kaldi in the same directory)
 
 # Copyright 2024-2025 Zhuojun Gu
 #
@@ -313,13 +313,13 @@ fi
 
 echo "Adding Kaldi binaries to PATH. To make this change permanent, add the following lines to your shell profile (e.g., ~/.bashrc or ~/.zshrc):"
 echo ""
-echo 'export KALDI_ROOT='$(pwd)/..
+echo 'export KALDI_ROOT= $KALDI_ROOT'
 echo 'export PATH=$KALDI_ROOT/tools/openfst/bin:$PATH'
 echo 'export PATH=$KALDI_ROOT/src/bin:$PATH'
 echo ""
 echo "You can execute the following commands to add them to your current session (temporary):"
 echo ""
-echo "export KALDI_ROOT=$(pwd)/.."
+echo 'export KALDI_ROOT= $KALDI_ROOT'
 echo "export PATH=\$KALDI_ROOT/tools/openfst/bin:\$PATH"
 echo "export PATH=\$KALDI_ROOT/src/bin:\$PATH"
 echo ""
