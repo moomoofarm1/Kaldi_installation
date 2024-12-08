@@ -1,10 +1,8 @@
 #!/bin/bash
 # Simplified Kaldi Installation Script for macOS M-chips
 
-#!!!!! HAS ERRORS!!!
-
 # Exit on error
-set -e
+#set -e
 
 # Check if running on macOS
 if [[ "$(uname)" != "Darwin" ]]; then
@@ -26,28 +24,33 @@ fi
 cd kaldi
 
 # Set SDK Path for macOS
-SDK_PATH="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
+SDK_PATH="/Library/Developer/CommandLineTools/SDKs/MacOSX15.1.sdk"
 if [[ ! -d "$SDK_PATH" ]]; then
   echo "SDK path $SDK_PATH not found. Exiting."
   exit 1
 fi
 
 # Export compiler flags
-CXXFLAGS="-isysroot $SDK_PATH -I$SDK_PATH/usr/include -I$SDK_PATH/usr/include/c++/v1 -stdlib=libc++ -arch arm64"
+CXXFLAGS="-isysroot $SDK_PATH -I$SDK_PATH/usr/include -I$SDK_PATH/usr/local/include -I$SDK_PATH/usr/include/c++/v1 -stdlib=libc++ -arch arm64"
 LDFLAGS="-isysroot $SDK_PATH -L$SDK_PATH/usr/lib -stdlib=libc++ -arch arm64"
 export CXXFLAGS
 export LDFLAGS
 
 # Build Kaldi tools
 cd tools
-make clean
-extras/check_dependencies.sh
-make -j"$(sysctl -n hw.logicalcpu)"
+make distclean || true
+extras/check_dependencies.sh CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS"
+make clean || true
+make -j"$(sysctl -n hw.logicalcpu)" CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS"
+
+pwd
+exit
 
 # Build Kaldi source
 cd ../src
-make clean
+make distclean || true
 ./configure --shared CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS"
+make clean || true
 make depend -j"$(sysctl -n hw.logicalcpu)" CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS"
 make -j"$(sysctl -n hw.logicalcpu)" CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS"
 
