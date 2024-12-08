@@ -1,6 +1,8 @@
 #!/bin/bash
 # Simplified Kaldi Installation Script for macOS M-chips
 
+#!!!!! HAS ERRORS!!!
+
 # Exit on error
 set -e
 
