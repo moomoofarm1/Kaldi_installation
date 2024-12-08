@@ -31,7 +31,7 @@ if [[ ! -d "$SDK_PATH" ]]; then
 fi
 
 # Export compiler flags
-CXXFLAGS="-isysroot $SDK_PATH -stdlib=libc++ -arch arm64"
+CXXFLAGS="-isysroot $SDK_PATH -I$SDK_PATH/usr/include -I$SDK_PATH/usr/include/c++/v1 -stdlib=libc++ -arch arm64"
 LDFLAGS="-isysroot $SDK_PATH -L$SDK_PATH/usr/lib -stdlib=libc++ -arch arm64"
 export CXXFLAGS
 export LDFLAGS
@@ -45,9 +45,9 @@ make -j"$(sysctl -n hw.logicalcpu)"
 # Build Kaldi source
 cd ../src
 make clean
-./configure --shared
-make depend -j"$(sysctl -n hw.logicalcpu)"
-make -j"$(sysctl -n hw.logicalcpu)"
+./configure --shared CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS"
+make depend -j"$(sysctl -n hw.logicalcpu)" CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS"
+make -j"$(sysctl -n hw.logicalcpu)" CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS"
 
 # Add Kaldi to PATH
 cd ..
