@@ -1,65 +1,58 @@
 #!/bin/bash
 # Simplified Kaldi Installation Script for macOS M-chips
 
-# Exit on error
-#set -e
-
 # Check if running on macOS
 if [[ "$(uname)" != "Darwin" ]]; then
-  echo "This script is for macOS only."
-  exit 1
+    echo "This script is intended for macOS systems only."
+    exit 1
 fi
 
-# Install Homebrew if not present
+# Ensure Homebrew is installed
 if ! command -v brew &> /dev/null; then
-  echo "Installing Homebrew..."
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    echo "Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
+
+# Install required dependencies
+REQUIRED_PACKAGES=(git wget automake autoconf sox libtool subversion python3 gfortran)
+for pkg in "${REQUIRED_PACKAGES[@]}"; do
+    brew list --formula | grep -q "^${pkg}\$" || brew install "$pkg"
+done
 
 # Clone Kaldi repository
-rm -rf kaldi
 if [[ ! -d "kaldi" ]]; then
-  git clone https://github.com/kaldi-asr/kaldi.git
+    git clone https://github.com/kaldi-asr/kaldi.git
 fi
 cd kaldi
 
-# Set SDK Path for macOS
-SDK_PATH="/Library/Developer/CommandLineTools/SDKs/MacOSX15.1.sdk"
-if [[ ! -d "$SDK_PATH" ]]; then
-  echo "SDK path $SDK_PATH not found. Exiting."
-  exit 1
+# Set up SDK and compiler flags for M-chips
+SDK_PATH="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
+export CXXFLAGS="-isysroot $SDK_PATH -stdlib=libc++ -arch arm64"
+export LDFLAGS="-isysroot $SDK_PATH -stdlib=libc++ -arch arm64"
+
+# Build Kaldi tools and OpenFst
+cd tools
+./extras/check_dependencies.sh
+make -j"$(sysctl -n hw.logicalcpu)"
+
+# Configure and build Kaldi source
+cd ../src
+./configure --shared
+make depend
+make -j"$(sysctl -n hw.logicalcpu)"
+
+# Set up environment variables
+export KALDI_ROOT=$PWD/..
+export PATH=$KALDI_ROOT/src/bin:$KALDI_ROOT/tools/openfst/bin:$PATH
+
+# Verify installation
+if [ -f "kaldi.mk" ]; then
+    echo "Kaldi installation completed successfully."
+else
+    echo "Error: Kaldi installation failed."
+    exit 1
 fi
 
-# Export compiler flags
-CXXFLAGS="-isysroot $SDK_PATH -I$SDK_PATH/usr/include -I$SDK_PATH/usr/local/include -I$SDK_PATH/usr/include/c++/v1 -stdlib=libc++ -arch arm64"
-LDFLAGS="-isysroot $SDK_PATH -L$SDK_PATH/usr/lib -stdlib=libc++ -arch arm64"
-export CXXFLAGS
-export LDFLAGS
-
-# Build Kaldi tools
-cd tools
-make distclean || true
-extras/check_dependencies.sh CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS"
-make clean || true
-make -j"$(sysctl -n hw.logicalcpu)" CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS"
-
-pwd
-exit
-
-# Build Kaldi source
-cd ../src
-make distclean || true
-./configure --shared CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS"
-make clean || true
-make depend -j"$(sysctl -n hw.logicalcpu)" CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS"
-make -j"$(sysctl -n hw.logicalcpu)" CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS"
-
-# Add Kaldi to PATH
-cd ..
-KALDI_ROOT=$(pwd)
-export PATH=$KALDI_ROOT/tools/openfst/bin:$KALDI_ROOT/src/bin:$PATH
-
-echo "Kaldi installation completed successfully."
-echo "Add the following lines to your shell profile to make the setup permanent:"
+echo "Kaldi is now installed. Add the following to your shell profile:"
 echo "export KALDI_ROOT=$KALDI_ROOT"
-echo "export PATH=\$KALDI_ROOT/tools/openfst/bin:\$KALDI_ROOT/src/bin:\$PATH"
+echo "export PATH=\$KALDI_ROOT/src/bin:\$KALDI_ROOT/tools/openfst/bin:\$PATH"
