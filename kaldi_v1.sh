@@ -62,18 +62,18 @@ fi
 # brew update || true
 
 # List of required packages. Add or remove as necessary.
-#REQUIRED_PACKAGES=(git wget automake autoconf sox libtool subversion python3 gfortran)
+REQUIRED_PACKAGES=(git wget automake autoconf sox libtool subversion python3 gfortran)
 
-#echo "Checking and installing required packages..."
-# for pkg in "${REQUIRED_PACKAGES[@]}"; do
-#   if ! brew list --formula | grep -q "^${pkg}\$"; then
-#     echo "Installing $pkg..."
-#     brew cleanup
-#     brew install "$pkg"
-#   else
-#     echo "$pkg is already installed."
-#   fi
-# done
+echo "Checking and installing required packages..."
+for pkg in "${REQUIRED_PACKAGES[@]}"; do
+  if ! brew list --formula | grep -q "^${pkg}\$"; then
+    echo "Installing $pkg..."
+    brew cleanup
+    brew install "$pkg"
+  else
+    echo "$pkg is already installed."
+  fi
+done
 
 #echo "All dependencies are now installed."
 
