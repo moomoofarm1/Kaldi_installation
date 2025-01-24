@@ -29,7 +29,7 @@ if [ -e "$FILE" ]; then
 else
   echo "$FILE does not exist."
 fi
-exec > >(tee logfile.log) 2>&1
+exec > >(tee "$FILE") 2>&1
 
 # The rest of your script goes here
 echo "This will be logged into logfile.log."
